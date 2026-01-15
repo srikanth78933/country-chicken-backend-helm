@@ -1,0 +1,23 @@
+# Development values
+namespace:
+  create: true
+  name: country-chicken-dev
+
+replicaCount: 1
+
+image:
+  repository: nexus.company.com/docker/country-chicken-backend
+  tag: "latest"
+
+serviceAccount:
+  create: false
+
+config:
+  SPRING_PROFILES_ACTIVE: dev
+
+ingress:
+  enabled: true
+  className: nginx
+  host: dev.backend.countrychicken.com
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
