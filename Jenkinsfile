@@ -2,8 +2,7 @@ pipeline {
     agent any
     
     environment {
-        NEXUS_USER = credentials('nexus-user')
-        NEXUS_PASS = credentials('nexus-pass')
+        NEXUS_CREDS = credentials('nexus-credentials')
         NEXUS_HELM_REPO_URL = 'http://51.21.169.25:8081/repository/helm-releases/'
     }
     
