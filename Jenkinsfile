@@ -1,13 +1,23 @@
 pipeline {
     agent any
-    
+
     environment {
         NEXUS_CREDS = credentials('nexus-credentials')
         NEXUS_HELM_REPO_URL = 'http://51.21.169.25:8081/repository/helm-releases/'
     }
-    
+
     stages {
-        stage('Package') {
+
+        stage('Validate Helm Chart') {
+            steps {
+                sh '''
+                  chmod +x scripts/validation.sh
+                  ./scripts/validation.sh
+                '''
+            }
+        }
+
+        stage('Package Helm Chart') {
             steps {
                 sh '''
                   chmod +x scripts/package.sh
@@ -15,8 +25,8 @@ pipeline {
                 '''
             }
         }
-        
-        stage('Push to Nexus') {
+
+        stage('Push Helm Package to Nexus') {
             steps {
                 sh '''
                   chmod +x scripts/push-to-nexus.sh
