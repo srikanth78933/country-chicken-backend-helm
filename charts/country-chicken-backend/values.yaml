@@ -13,7 +13,7 @@ image:
 serviceAccount:
   create: true
   name: country-chicken-sa
-  irsaRoleArn: ""
+  irsaRoleArn: "arn:aws:iam::042831095386:role/country-chicken-irsa-role"
 
 service:
   type: ClusterIP
