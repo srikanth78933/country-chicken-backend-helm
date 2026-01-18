@@ -9,13 +9,19 @@ pipeline {
     stages {
         stage('Package') {
             steps {
-                sh 'scripts/package.sh'
+                sh '''
+                  chmod +x scripts/package.sh
+                  ./scripts/package.sh
+                '''
             }
         }
         
         stage('Push to Nexus') {
             steps {
-                sh 'scripts/push-to-nexus.sh'
+                sh '''
+                  chmod +x scripts/push-to-nexus.sh
+                  ./scripts/push-to-nexus.sh
+                '''
             }
         }
         
