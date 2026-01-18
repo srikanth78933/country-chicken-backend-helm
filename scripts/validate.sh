@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-# Simple validation
 source scripts/env.sh
 
-echo "Validating Helm chart..."
-helm lint $CHART_PATH
+echo "Running Helm lint..."
+helm lint "$CHART_PATH"
 
-echo "Dry-run template..."
-helm template $APP_NAME $CHART_PATH --dry-run
+echo "Rendering Helm templates..."
+helm template "$APP_NAME" "$CHART_PATH" > /dev/null
 
-echo "Validation passed!"
+echo "Helm validation passed ✅"
