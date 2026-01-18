@@ -4,7 +4,7 @@ pipeline {
     environment {
         NEXUS_USER = credentials('nexus-user')
         NEXUS_PASS = credentials('nexus-pass')
-        NEXUS_HELM_REPO_URL = 'https://nexus.company.com/repository/helm-hosted/'
+        NEXUS_HELM_REPO_URL = 'http://51.21.169.25:8081/repository/helm-releases/'
     }
     
     stages {
