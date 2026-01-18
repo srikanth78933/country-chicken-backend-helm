@@ -11,8 +11,8 @@ pipeline {
         stage('Validate Helm Chart') {
             steps {
                 sh '''
-                  chmod +x scripts/validation.sh
-                  ./scripts/validation.sh
+                  chmod +x scripts/validate.sh
+                  ./scripts/validate.sh
                 '''
             }
         }
