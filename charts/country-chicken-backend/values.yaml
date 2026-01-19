@@ -46,10 +46,15 @@ autoscaling:
 config: {}
 
 ingress:
-  enabled: false
-  className: ""
-  host: ""
-  annotations: {}
+  enabled: true
+  className: alb
+  host: app.example.com
+  path: /
+  pathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 
 secrets:
   enabled: false
