@@ -2,12 +2,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}
-  namespace: {{ .Values.namespace.name }}
-  {{- with .Values.ingress.annotations }}
+  name: {{ include "app.name" . }}
+
   annotations:
-{{ toYaml . | indent 4 }}
-  {{- end }}
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+
 spec:
   ingressClassName: {{ .Values.ingress.className }}
 
@@ -20,7 +19,7 @@ spec:
             pathType: {{ .Values.ingress.pathType }}
             backend:
               service:
-                name: {{ .Chart.Name }}
+                name: {{ include "app.name" . }}
                 port:
                   number: {{ .Values.service.port }}
   {{- else }}
@@ -31,7 +30,7 @@ spec:
             pathType: {{ .Values.ingress.pathType }}
             backend:
               service:
-                name: {{ .Chart.Name }}
+                name: {{ include "app.name" . }}
                 port:
                   number: {{ .Values.service.port }}
   {{- end }}

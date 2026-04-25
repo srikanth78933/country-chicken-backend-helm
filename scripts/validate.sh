@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-source scripts/env.sh
+DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$DIR/env.sh"
 
 echo "Running Helm lint..."
 helm lint "$CHART_PATH"

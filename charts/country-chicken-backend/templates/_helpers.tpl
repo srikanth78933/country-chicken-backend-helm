@@ -3,6 +3,6 @@ country-chicken-backend
 {{- end }}
 
 {{- define "app.labels" -}}
-app: country-chicken-backend
+app: {{ include "app.name" . }}
 release: {{ .Release.Name }}
 {{- end }}

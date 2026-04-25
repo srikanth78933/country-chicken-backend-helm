@@ -1,9 +1,10 @@
-# Default values
+# Namespace (handled by helm install -n, no need to hardcode in templates)
 namespace:
-  create: true
+  create: false
   name: country-chicken
 
-replicaCount: 1
+# Replica (used when HPA disabled)
+replicaCount: 2
 
 image:
   repository: "51.21.169.25:8081/docker-releases/country-chicken-backend"
@@ -37,26 +38,30 @@ probes:
     initialDelaySeconds: 60
     periodSeconds: 20
 
+# ✅ Enable autoscaling for production
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
 
+# Optional app config
 config: {}
 
+# ✅ ALB Ingress (fixed health check)
 ingress:
   enabled: true
   className: alb
-  host: ""   # IMPORTANT: keep empty if no domain
+  host: ""   # no domain → use ALB DNS
   path: /
   pathType: Prefix
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
 
+# Optional secrets (IRSA + Secrets Manager)
 secrets:
   enabled: false
   objectName: ""
