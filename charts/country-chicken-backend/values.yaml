@@ -1,7 +1,7 @@
 # Default values
 namespace:
   create: true
-  name: country-chicken-dev
+  name: country-chicken
 
 replicaCount: 1
 
@@ -13,7 +13,7 @@ image:
 serviceAccount:
   create: true
   name: country-chicken-sa
-  irsaRoleArn: "arn:aws:iam::042831095386:role/country-chicken-irsa-role"
+  irsaRoleArn: "arn:aws:iam::123185599168:role/country-chicken-irsa-role"
 
 service:
   type: ClusterIP
@@ -48,13 +48,14 @@ config: {}
 ingress:
   enabled: true
   className: alb
-  host: app.example.com
+  host: ""   # IMPORTANT: keep empty if no domain
   path: /
   pathType: Prefix
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
 
 secrets:
   enabled: false
