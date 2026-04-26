@@ -51,7 +51,7 @@ pipeline {
             steps {
                 sh '''
                   set -e
-                  aws eks --region ap-south-1 update-kubeconfig --name my-cluster
+                  aws eks --region us-east-1 update-kubeconfig --name eks-cluster
                   kubectl get nodes
                 '''
             }
