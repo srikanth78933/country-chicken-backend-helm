@@ -46,6 +46,17 @@ pipeline {
             }
         }
 
+        // 🔥 NEW STAGE (K8s Authentication)
+        stage('Configure K8s Access') {
+            steps {
+                sh '''
+                  set -e
+                  aws eks --region ap-south-1 update-kubeconfig --name my-cluster
+                  kubectl get nodes
+                '''
+            }
+        }
+
         stage('Deploy to Dev') {
             steps {
                 sh '''
