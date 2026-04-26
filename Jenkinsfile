@@ -6,7 +6,7 @@ pipeline {
         NEXUS_CREDS_USR = "${NEXUS_CREDS_USR}"
         NEXUS_CREDS_PSW = "${NEXUS_CREDS_PSW}"
 
-        NEXUS_HELM_REPO_URL = 'http://51.21.169.25:8081/repository/helm-releases/'
+        NEXUS_HELM_REPO_URL = 'http://54.87.4.226:8081/repository/helm-releases/'
 
         BUILD_TAG = "${BUILD_NUMBER}"
     }
