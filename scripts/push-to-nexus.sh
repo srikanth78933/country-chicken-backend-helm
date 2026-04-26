@@ -14,7 +14,7 @@ fi
 echo "Uploading $(basename $PACKAGE) to Nexus..."
 
 RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/nexus_response.txt \
-  -u "$NEXUS_CREDS_USR:$NEXUS_CREDS_PSW" \
+  -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
   -X POST "$NEXUS_BASE_URL/service/rest/v1/components?repository=$NEXUS_HELM_REPO_NAME" \
   -F "helm.asset=@$PACKAGE")
 
