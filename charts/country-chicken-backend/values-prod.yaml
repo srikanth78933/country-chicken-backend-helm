@@ -1,45 +1,67 @@
-# Production values
+# Namespace (handled by helm install -n, no need to hardcode in templates)
 namespace:
-  create: true
+  create: false
   name: country-chicken
 
-replicaCount: 3
+# Replica (used when HPA disabled)
+replicaCount: 2
 
 image:
-  repository: nexus.company.com/docker/country-chicken-backend
+  repository: "51.21.169.25:8081/docker-releases/country-chicken-backend"
   tag: "1.0.0"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 serviceAccount:
   create: true
-  name: country-chicken-prod-sa
-  irsaRoleArn: arn:aws:iam::123456789012:role/country-chicken-irsa
+  name: country-chicken-sa
+  irsaRoleArn: "arn:aws:iam::123185599168:role/country-chicken-irsa-role"
+
+service:
+  type: ClusterIP
+  port: 8080
 
 resources:
   requests:
-    cpu: "500m"
-    memory: "1Gi"
+    cpu: "100m"
+    memory: "256Mi"
   limits:
-    cpu: "1"
-    memory: "2Gi"
+    cpu: "500m"
+    memory: "512Mi"
 
+probes:
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 20
+    periodSeconds: 10
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 60
+    periodSeconds: 20
+
+# ✅ Enable autoscaling for production
 autoscaling:
   enabled: true
-  minReplicas: 3
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 60
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
 
-config:
-  SPRING_PROFILES_ACTIVE: prod
-  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75.0"
+# Optional app config
+config: {}
 
+# ✅ ALB Ingress (fixed health check)
 ingress:
   enabled: true
-  className: nginx
-  host: backend.countrychicken.com
+  className: alb
+  host: ""   # no domain → use ALB DNS
+  path: /
+  pathType: Prefix
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
 
+# Optional secrets (IRSA + Secrets Manager)
 secrets:
-  enabled: true
-  objectName: "country-chicken/prod/db"
+  enabled: false
+  objectName: ""
