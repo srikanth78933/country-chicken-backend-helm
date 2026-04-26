@@ -11,13 +11,21 @@ if [ -z "$PACKAGE" ]; then
   exit 1
 fi
 
-FILENAME=$(basename "$PACKAGE")
+echo "Uploading $(basename $PACKAGE) to Nexus..."
 
-echo "Uploading $FILENAME to Nexus..."
-
-curl -u "$NEXUS_CREDS_USR:$NEXUS_CREDS_PSW" \
+RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/nexus_response.txt \
+  -u "$NEXUS_CREDS_USR:$NEXUS_CREDS_PSW" \
   -X POST "$NEXUS_BASE_URL/service/rest/v1/components?repository=$NEXUS_HELM_REPO_NAME" \
-  -F "helm.asset=@$PACKAGE" \
-  -F "helm.asset.filename=$FILENAME"
+  -F "helm.asset=@$PACKAGE")
+
+HTTP_CODE=$(tail -n1 <<< "$RESPONSE")
+
+echo "HTTP Status: $HTTP_CODE"
+cat /tmp/nexus_response.txt
+
+if [ "$HTTP_CODE" != "204" ]; then
+  echo "Upload failed ❌"
+  exit 1
+fi
 
 echo "Upload successful ✅"
