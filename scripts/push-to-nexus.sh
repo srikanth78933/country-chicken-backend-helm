@@ -11,10 +11,13 @@ if [ -z "$PACKAGE" ]; then
   exit 1
 fi
 
-echo "Uploading $PACKAGE to Nexus..."
+FILENAME=$(basename "$PACKAGE")
+
+echo "Uploading $FILENAME to Nexus..."
 
 curl -u "$NEXUS_CREDS_USR:$NEXUS_CREDS_PSW" \
-  --upload-file "$PACKAGE" \
-  "$NEXUS_HELM_REPO_URL/$(basename "$PACKAGE")"
+  -X POST "$NEXUS_BASE_URL/service/rest/v1/components?repository=$NEXUS_HELM_REPO_NAME" \
+  -F "helm.asset=@$PACKAGE" \
+  -F "helm.asset.filename=$FILENAME"
 
 echo "Upload successful ✅"
