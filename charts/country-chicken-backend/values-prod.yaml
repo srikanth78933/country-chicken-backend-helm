@@ -7,7 +7,7 @@ namespace:
 replicaCount: 2
 
 image:
-  repository: "54.87.4.226:8082/docker-releases/country-chicken-backend"
+  repository: "54.87.4.226:8081/helm-releases/country-chicken-backend"
   tag: "1.0.0"
   pullPolicy: IfNotPresent
 
