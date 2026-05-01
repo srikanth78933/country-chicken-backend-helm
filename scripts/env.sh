@@ -10,5 +10,5 @@ NEXUS_HELM_REPO="nexus-helm"
 NEXUS_HELM_REPO_URL="${NEXUS_HELM_REPO_URL:-http://54.226.123.235:8081/repository/helm-releases/}"
 
 # 🔥 NEW (Required for proper upload via API)
-NEXUS_BASE_URL="http://54.226.123.235:8081"
+NEXUS_BASE_URL="https://54.226.123.235"
 NEXUS_HELM_REPO_NAME="helm-releases"
