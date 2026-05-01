@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_HELM_REPO_URL = 'http://54.226.123.235:8081/repository/helm-releases/'
+        NEXUS_HELM_REPO_URL = 'https://54.226.123.235/repository/helm-releases/'
         BUILD_TAG = "${BUILD_NUMBER}"
     }
 
