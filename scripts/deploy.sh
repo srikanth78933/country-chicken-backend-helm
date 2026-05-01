@@ -20,34 +20,34 @@ echo "🚀 Deploying $APP_NAME to $ENV environment..."
 : "${NEXUS_PASSWORD:?NEXUS_PASSWORD not set}"
 : "${NEXUS_HELM_REPO:?NEXUS_HELM_REPO not set}"
 : "${NEXUS_HELM_REPO_URL:?NEXUS_HELM_REPO_URL not set}"
+: "${NAMESPACE:?NAMESPACE not set}"
+: "${CHART_PATH:?CHART_PATH not set}"
 
 # -----------------------------
-# Add / Update Helm repo
+# Add Helm repo (idempotent)
 # -----------------------------
-if ! helm repo list | grep -q "^$NEXUS_HELM_REPO"; then
+if ! helm repo list | awk '{print $1}' | grep -q "^$NEXUS_HELM_REPO$"; then
   echo "➕ Adding Helm repo..."
-
   helm repo add "$NEXUS_HELM_REPO" "$NEXUS_HELM_REPO_URL" \
     --username "$NEXUS_USERNAME" \
     --password "$NEXUS_PASSWORD"
 else
-  echo "♻️ Repo already exists, updating credentials..."
-  helm repo remove "$NEXUS_HELM_REPO" || true
-
-  helm repo add "$NEXUS_HELM_REPO" "$NEXUS_HELM_REPO_URL" \
-    --username "$NEXUS_USERNAME" \
-    --password "$NEXUS_PASSWORD"
+  echo "♻️ Helm repo already exists"
 fi
 
+# -----------------------------
+# Update repo
+# -----------------------------
 echo "🔄 Updating Helm repo..."
 helm repo update
 
 # -----------------------------
 # Verify repo connectivity
 # -----------------------------
-echo "🔍 Verifying Helm repo access..."
-if ! curl -sSf "$NEXUS_HELM_REPO_URL/index.yaml" >/dev/null; then
-  echo "❌ Cannot access Helm repo index.yaml"
+echo "🔍 Verifying Nexus Helm repo..."
+if ! curl -sSf -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+  "$NEXUS_HELM_REPO_URL/index.yaml" >/dev/null; then
+  echo "❌ Cannot access Nexus Helm repo"
   exit 1
 fi
 
@@ -55,7 +55,7 @@ fi
 # Validate chart availability
 # -----------------------------
 echo "🔍 Checking chart availability..."
-if ! helm search repo "$NEXUS_HELM_REPO/$APP_NAME" | grep -q "$APP_NAME"; then
+if ! helm search repo "$NEXUS_HELM_REPO/$APP_NAME" -o json | grep -q "$APP_NAME"; then
   echo "❌ Chart $APP_NAME not found in repo"
   exit 1
 fi
@@ -67,7 +67,7 @@ if ! kubectl get ns "$NAMESPACE" >/dev/null 2>&1; then
   echo "📦 Creating namespace $NAMESPACE..."
   kubectl create ns "$NAMESPACE"
 else
-  echo "📦 Namespace $NAMESPACE already exists"
+  echo "📦 Namespace already exists"
 fi
 
 # -----------------------------
@@ -91,9 +91,9 @@ else
 fi
 
 # -----------------------------
-# Dry Run (Debug)
+# Dry Run
 # -----------------------------
-echo "🧪 Running Helm dry-run..."
+echo "🧪 Helm dry-run..."
 helm upgrade --install "$APP_NAME" \
   "$NEXUS_HELM_REPO/$APP_NAME" \
   -n "$NAMESPACE" \
@@ -101,7 +101,7 @@ helm upgrade --install "$APP_NAME" \
   --dry-run --debug
 
 # -----------------------------
-# Actual Deployment
+# Deploy
 # -----------------------------
 echo "🚀 Deploying to Kubernetes..."
 helm upgrade --install "$APP_NAME" \
@@ -112,13 +112,13 @@ helm upgrade --install "$APP_NAME" \
   --timeout 5m
 
 # -----------------------------
-# Rollout Verification
+# Rollout check
 # -----------------------------
-echo "⏳ Checking rollout status..."
+echo "⏳ Waiting for rollout..."
 kubectl rollout status deployment/"$APP_NAME" -n "$NAMESPACE" --timeout=120s
 
 # -----------------------------
-# Output useful info
+# Output info
 # -----------------------------
 echo "📦 Pods:"
 kubectl get pods -n "$NAMESPACE"
@@ -129,10 +129,7 @@ kubectl get svc -n "$NAMESPACE"
 echo "🌍 Ingress:"
 kubectl get ingress -n "$NAMESPACE"
 
-# -----------------------------
-# Helm History
-# -----------------------------
-echo "📜 Helm release history:"
+echo "📜 Helm history:"
 helm history "$APP_NAME" -n "$NAMESPACE"
 
-echo "✅ Deployment completed successfully"
+echo "✅ Deployment successful"
