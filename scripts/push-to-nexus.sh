@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$DIR/env.sh"
@@ -11,21 +11,23 @@ if [ -z "$PACKAGE" ]; then
   exit 1
 fi
 
-echo "Uploading $(basename $PACKAGE) to Nexus..."
+echo "📦 Uploading $(basename "$PACKAGE") to Nexus..."
 
-RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/nexus_response.txt \
+RESPONSE=$(curl -k -s -w "%{http_code}" -o /tmp/nexus_response.txt \
   -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
   -X POST "$NEXUS_BASE_URL/service/rest/v1/components?repository=$NEXUS_HELM_REPO_NAME" \
   -F "helm.asset=@$PACKAGE")
 
 HTTP_CODE=$(tail -n1 <<< "$RESPONSE")
 
-echo "HTTP Status: $HTTP_CODE"
+echo "🔢 HTTP Status: $HTTP_CODE"
+echo "📄 Response:"
 cat /tmp/nexus_response.txt
+echo ""
 
 if [ "$HTTP_CODE" != "204" ]; then
-  echo "Upload failed ❌"
+  echo "❌ Upload failed"
   exit 1
 fi
 
-echo "Upload successful ✅"
+echo "✅ Upload successful"
